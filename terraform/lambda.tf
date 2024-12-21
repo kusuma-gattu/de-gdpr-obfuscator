@@ -47,3 +47,9 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_role_attachment" {
     role = aws_iam_role.lambda_role.name
     policy_arn = aws_iam_policy.s3_policy.arn
 }
+
+# attach cloud watch logs to lambda
+resource "aws_iam_role_policy_attachment" "lambda_cw_role_attachment" {
+    role = aws_iam_role.lambda_role.name
+    policy_arn = aws_iam_policy.cw_log_policy.arn
+}
