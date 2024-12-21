@@ -1,4 +1,4 @@
-import json, re, io, tempfile, logging
+import re, io, tempfile, logging
 import boto3
 import pandas as pd
 
@@ -34,7 +34,7 @@ def read_data(format, data, pii_fields):
                 df.to_parquet(temp_file.name, index=False)
             
             logger.info(f"Data successfully written to {temp_file.name}")
-            return temp_file.path
+            return temp_file.name
 
     except Exception as e:
         logger.error(f"Error processing data: {str(e)}")
