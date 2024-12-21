@@ -21,8 +21,8 @@ install-dev-tools:
 
 # run code quality checks
 security-checks: 
-	source venv/bin/activate && safety check -r ./requirements/txt
-	source venv/bin/activate && bandit -lll */*.py *c/*/*.py
+	source venv/bin/activate && safety check -r ./requirements.txt
+	source venv/bin/activate && bandit -lll */*.py 
 
 # 4. run unit tests
 unit-test:
