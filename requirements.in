@@ -1,6 +1,8 @@
 boto3
+botocore
 pytest
 pytest-cov
 pytest-testdox
 moto[s3]
 pandas
+pyarrow
