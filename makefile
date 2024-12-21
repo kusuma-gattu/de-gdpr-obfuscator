@@ -11,6 +11,8 @@ create-environment:
 
 # 2: Install dependencies
 install-dependencies: create-environment
+	source venv/bin/activate && $(PIP) install pip-tools
+	source venv/bin/activate && pip-compile requirements.in
 	source venv/bin/activate && $(PIP) install -r ./requirements.txt
 
 # 3. install code quality tools
