@@ -1,11 +1,13 @@
-# Data Obfuscation Tool
-### Overview
+# Data GDPR Obfuscation Tool
+### Project Description
 This project provides a general-purpose Python tool to obfuscate Personally Identifiable Information (PII) in data files stored in AWS S3. The tool intercepts PII in files, such as CSV files, and replaces sensitive fields with obfuscated strings. This project is intended to ensure data privacy and compliance with GDPR standards by anonymizing specified fields before processing or sharing data further.
 
 ### Prerequisites and Assumptions
-Data Format: Input data is stored in CSV, JSON, or Parquet formats in an AWS S3 bucket.
+AWS CLI Configure Profile: configure your IAM role on AWS CLI using command aws configure
+GitHub Secret Keys: configure GitHub Secrets for AWS IAM access key, secret access key and region 
 
-PII Fields: Fields containing GDPR-sensitive data are known and provided in advance.
+### Run the Project
+
 
 ### Project Goal
 The goal of this project is to develop a library module that can be integrated into a Python codebase. Given the S3 location of a file and the field names of PII data, this tool generates an obfuscated version of the file as a byte-stream object. The calling application is responsible for saving the output data to a desired destination.
