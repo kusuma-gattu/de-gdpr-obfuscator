@@ -1,74 +1,87 @@
 # Data GDPR Obfuscation Tool
-### Project Description
-This project provides a general-purpose Python tool to obfuscate Personally Identifiable Information (PII) in data files stored in AWS S3. The tool intercepts PII in files, such as CSV files, and replaces sensitive fields with obfuscated strings. This project is intended to ensure data privacy and compliance with GDPR standards by anonymizing specified fields before processing or sharing data further.
 
-The goal of this project is to develop a library module that can be integrated into a Python codebase. Given the S3 location of a file and the field names of PII data, this tool generates an obfuscated version of the file as a byte-stream object. The calling application is responsible for saving the output data to a desired destination.
+## Project Description
+The **Data GDPR Obfuscation Tool** is a Python-based solution designed to anonymize Personally Identifiable Information (PII) in data files stored in AWS S3. By obfuscating sensitive fields, such as names and email addresses, the tool ensures data privacy and compliance with GDPR standards. This solution is particularly useful for organizations aiming to protect sensitive data during processing or sharing.
 
+This project provides a library module that can be seamlessly integrated into Python applications. Given the S3 location of a data file and the field names containing PII, the tool generates an obfuscated version of the file as a byte-stream object. The calling application is responsible for saving the processed file to a desired location.
 
-### Prerequisites and Assumptions
-AWS CLI Configure Profile: configure your IAM role on AWS CLI using command aws configure
+---
 
-GitHub Secret Keys: configure GitHub Secrets for AWS IAM access key, secret access key and region
+## Prerequisites and Assumptions
 
-S3 Bucket: replace S3 bucket name with your bucket in vars.tf file under terraform, and make sure you have files in this bucket.
+### AWS Configuration
+- Configure your IAM role on the AWS CLI using the following command:
+  ```bash
+  aws configure
+  ```
 
-File formats : This project accepts CSV, JSON and Parquet file formats
+### GitHub Secrets
+- Configure GitHub Secrets to store the following:
+  - AWS IAM Access Key
+  - AWS IAM Secret Access Key
+  - AWS Region
 
-### High-Level Workflow
-Input: The tool is triggered by sending a JSON string specifying:
-The S3 location of the data file.
-A list of fields that require obfuscation.
+### S3 Bucket
+- Update the S3 bucket name in the `vars.tf` file under the Terraform configuration.
+- Ensure that the data files are present in this bucket.
 
-Processing: The tool retrieves the data file, obfuscates the specified PII fields, and produces an exact copy of the original file with PII fields replaced by obfuscated strings.
+### Supported File Formats
+- The tool supports the following file formats:
+  - CSV
+  - JSON
+  - Parquet
 
-Output: A byte-stream representation of the obfuscated file that can be directly used with the boto3 S3 Put Object function for saving the file back to AWS S3 or elsewhere.
+---
 
-### Run the Project
-Code will be deployed using GitHub Actions pipeline.
+## High-Level Workflow
 
-There are 2 ways to run this project
+### Input
+1. Specify the S3 location of the data file.
+2. Provide a list of fields that require obfuscation.
 
-#### Option 1:
-Step 1. Grab the ARN of step function from AWS console
+### Processing
+1. The tool retrieves the specified data file from S3.
+2. Obfuscates the specified PII fields by replacing them with anonymized values.
+3. Produces an exact copy of the original file with the PII fields obfuscated.
 
-step 2. start execution of step function using the follow command on AWS CLI
+### Output
+- A byte-stream representation of the obfuscated file.
 
+---
+
+## Running the Project
+The project is deployed using a GitHub Actions pipeline and can be executed in two ways.
+
+### **Option 1: Using the AWS CLI**
+
+1. Retrieve the ARN of the Step Function from the AWS Management Console.
+2. Start the Step Function execution using the following command:
+   ```bash
+   aws stepfunctions start-execution \
+     --state-machine-arn "<STEP_FUNCTION_ARN>" \
+     --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
+   ```
+
+#### Example
+```bash
 aws stepfunctions start-execution \
---state-machine-arn "paste step function arn here" \
---input '{
-"file_to_obfuscate": "paste S3 Object URI here",
-"pii_fields": ["list", "all", "pii", "columns", "here"] 
-}'
+  --state-machine-arn "arn:aws:states:us-east-1:123456789012:stateMachine:InvokeLambdaAndRetrieveFile" \
+  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["name", "email"] }'
+```
 
-example : 
+### **Option 2: Using Terraform**
 
+1. Navigate to the `terraform` folder of the repository.
+2. Start the Step Function execution using the following command:
+   ```bash
+   aws stepfunctions start-execution \
+     --state-machine-arn "$(terraform output -raw state_machine_arn)" \
+     --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
+   ```
+
+#### Example
+```bash
 aws stepfunctions start-execution \
-    --state-machine-arn "arn:aws:states:<region>:<account-id>:stateMachine:InvokeLambdaAndRetrieveFile" \
-    --input '{
-            "file_to_obfuscate": "s3://bucket_name/sample.csv",
-            "pii_fields": ["name", "email"]
-        }'
-
-
-#### Option 2:
-step 1: go to 'terraform' folder of the project/repo in AWS CLI
-step 2: start execution of step function using the follow command 
-
-aws stepfunctions start-execution \
---state-machine-arn "$(terraform output -raws state_machine_arn)" \
---input '{
-"file_to_obfuscate": "paste S3 Object URI here",
-"pii_fields": ["list", "all", "pii", "columns", "here"] 
-}'
-
-example:
-
-aws stepfunctions start-execution \
---state-machine-arn "$(terraform output -raws state_machine_arn)" \
---input '{
-            "file_to_obfuscate": "s3://bucket_name/sample.csv",
-            "pii_fields": ["email", "contact"]
-        }'
-
-
-
+  --state-machine-arn "$(terraform output -raw state_machine_arn)" \
+  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["email", "contact"] }'
+```
