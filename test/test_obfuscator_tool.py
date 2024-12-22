@@ -1,19 +1,11 @@
 import pytest, logging, os
-import boto3
 import pandas as pd
-from botocore.exceptions import ClientError
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
 from src.obfuscator_tool import (
     read_data,
     lambda_handler
 )
 
-
-@pytest.fixture(scope="function")
-def mock_aws_credentials():
-    os.environ["AWS_ACCESS_KEY_ID"] = "test"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "test"
-    os.environ["AWS_DEFAULT_REGION"] = "eu-west-2"
 
 class Test_Read_Data:
            
@@ -51,10 +43,40 @@ class Test_Read_Data:
             read_data("xml", b"name,email,contact\nkusuma,kusuma@mail.com,0123456789", "name")
     
     
-# class Test_lambda_handler:
+class Test_lambda_handler:
     
+    @patch("src.obfuscator_tool.boto3.client")
+    @patch("src.obfuscator_tool.read_data")
+    def test_lambda_handler_success(self, mock_read_data, mock_boto_client):
+        mock_s3 = MagicMock()
+        mock_boto_client.return_value = mock_s3
+        
+        mock_s3.get_object.return_value = {"Body": MagicMock(read=lambda: b"name,email,contact\nkusuma,kusuma@mail.com")}
+
+        mock_read_data.return_value = "/tmp/ty123.cvs"
+        
+        event = {
+            "file_to_obfuscate": "s3://bucket_name/test.csv",
+            "pii_fields": ["email"]
+        }
+        
+        response = lambda_handler(event, None)
+        
+        assert response["status_code"] == 200
+        assert response["file"] == "/tmp/ty123.cvs"
+        
     
-
-
+    @patch("src.obfuscator_tool.boto3.client")
+    def test_lambda_handler_invalid_s3(self, mock_boto_client, caplog):
+        event = {
+            "file_to_obfuscate": "invalid_s3_url",
+            "pii_fields": ["email"]
+        }
+        
+        with caplog.at_level(logging.ERROR):  
+            lambda_handler(event, None)
+        assert "Invalid S3 URL format" in caplog.text 
+        
+        
     
     
