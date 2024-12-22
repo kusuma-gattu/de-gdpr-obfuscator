@@ -4,6 +4,7 @@ This project provides a general-purpose Python tool to obfuscate Personally Iden
 
 ### Prerequisites and Assumptions
 AWS CLI Configure Profile: configure your IAM role on AWS CLI using command aws configure
+
 GitHub Secret Keys: configure GitHub Secrets for AWS IAM access key, secret access key and region 
 
 ### Run the Project
