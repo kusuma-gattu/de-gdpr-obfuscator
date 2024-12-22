@@ -1,6 +1,7 @@
 import re, io, tempfile, logging
 import boto3
 import pandas as pd
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -45,14 +46,13 @@ def lambda_handler(event, context):
     try:
         # get s3 url from input
         s3_url = event['file_to_obfuscate']
-        # extract bucket name and key from s3 url
-        b = s3_url.split("//")
-        bucket = re.search(r"[a-z_-]+", b[1])
-        bucket_name = bucket.group(0)
-        logger.info(f"bucket name: {bucket_name}")
-        key = re.search(r"(/)([a-z._0-9-]+/[a-z_.0-9-]+)", b[1])
-        object_key = key.group(2)
-        logger.info(f"key name: {object_key}")
+        # extract bucket name and object key from s3 url
+        url = urlparse(s3_url)
+        if url.scheme == 's3':
+            bucket_name = url.netloc.split(".")[0]
+            object_key = url.path.lstrip("/")
+        else:
+            logger.error("Invalid S3 URL format")
 
         # create s3 client
         s3_client = boto3.client("s3")
