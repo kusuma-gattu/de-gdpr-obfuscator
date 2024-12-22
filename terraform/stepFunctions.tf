@@ -12,6 +12,7 @@ data "aws_iam_policy_document" "step_function_policy_doc" {
  
 }
 
+
 resource "aws_iam_role" "step_function_role" {
     name = "step-function-role"
     assume_role_policy = data.aws_iam_policy_document.step_function_policy_doc.json   
