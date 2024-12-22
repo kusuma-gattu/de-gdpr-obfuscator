@@ -39,6 +39,7 @@ aws stepfunctions start-execution \
 }'
 
 example : 
+
 aws stepfunctions start-execution \
     --state-machine-arn "arn:aws:states:<region>:<account-id>:stateMachine:InvokeLambdaAndRetrieveFile" \
     --input '{
@@ -59,6 +60,7 @@ aws stepfunctions start-execution \
 }'
 
 example:
+
 aws stepfunctions start-execution \
 --state-machine-arn "$(terraform output -raws state_machine_arn)" \
 --input '{
