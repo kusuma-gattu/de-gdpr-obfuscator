@@ -55,24 +55,30 @@ The project is deployed using a GitHub Actions pipeline and can be executed in t
 ### **Option 1: Using the AWS CLI**
 
 1. Retrieve the ARN of the Step Function from the AWS Management Console.
-2. Start the Step Function execution using the following command:
+2. Start the Step Function execution using the following command on Linux or Mac OS:
    ```bash
    aws stepfunctions start-execution \
      --state-machine-arn "<STEP_FUNCTION_ARN>" \
      --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
    ```
-
+  
 #### Example
 ```bash
 aws stepfunctions start-execution \
   --state-machine-arn "arn:aws:states:us-east-1:123456789012:stateMachine:InvokeLambdaAndRetrieveFile" \
   --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["name", "email"] }'
 ```
+Start the Step Function execution using the following command on Windows OS:
+```bash
+aws stepfunctions start-execution \
+--state-machine-arn "<STEP_FUNCTION_ARN>" \
+--input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
+```
 
 ### **Option 2: Using Terraform**
 
 1. Navigate to the `terraform` folder of the repository.
-2. Start the Step Function execution using the following command:
+2. Start the Step Function execution using the following command on Linux or Mac OS:
    ```bash
    aws stepfunctions start-execution \
      --state-machine-arn "$(terraform output -raw state_machine_arn)" \
@@ -83,5 +89,12 @@ aws stepfunctions start-execution \
 ```bash
 aws stepfunctions start-execution \
   --state-machine-arn "$(terraform output -raw state_machine_arn)" \
-  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["email", "contact"] }'
+  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["email", "address"] }'
+```
+
+Start the Step Function execution using the following command on Windows OS:
+```bash
+aws stepfunctions start-execution \
+--state-machine-arn "$(terraform output -raw state_machine_arn)" \
+--input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
 ```
