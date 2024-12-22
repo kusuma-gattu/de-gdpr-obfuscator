@@ -48,29 +48,40 @@ def lambda_handler(event, context):
         s3_url = event['file_to_obfuscate']
         # extract bucket name and object key from s3 url
         url = urlparse(s3_url)
+        print(url)
         if url.scheme == 's3':
-            bucket_name = url.netloc.split(".")[0]
-            object_key = url.path.lstrip("/")
+            # check if S3 url has bucket name
+            if url.netloc:
+                bucket_name = url.netloc
+            else:
+                logger.warning("S3 url is missing bucket name")
+            # ckeck S3 url has object key
+            if url.path:
+                object_key = url.path.lstrip("/")
+            else:
+                logger.warning("S3 url is missing object key")              
         else:
             logger.error("Invalid S3 URL format")
 
         # create s3 client
         s3_client = boto3.client("s3")
         # get data object
-        response = s3_client.get_object(
-            Bucket = bucket_name,
-            Key = object_key
-        )
-        # read data from response
-        data = response['Body'].read()
-        # check file type
-        file_format = re.search(r"([.])([a-z]+)", s3_url)
-        file_format = file_format.group(2)       
-        output_file = read_data(file_format, data, event['pii_fields']) 
-        return {
-            "status_code" : 200,
-            "file": output_file
-        }
-           
+        if bucket_name and object_key: 
+            response = s3_client.get_object(
+                Bucket = bucket_name,
+                Key = object_key
+            )
+            # read data from response
+            data = response['Body'].read()
+            # check file type
+            file_format = re.search(r"([.])([a-z]+)", s3_url)
+            file_format = file_format.group(2)       
+            output_file = read_data(file_format, data, event['pii_fields']) 
+            if output_file:
+                return {
+                "status_code" : 200,
+                "file": output_file
+            }
+         
     except Exception as e:
         logger.error(e)
