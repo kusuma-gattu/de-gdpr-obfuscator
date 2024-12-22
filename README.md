@@ -10,7 +10,9 @@ AWS CLI Configure Profile: configure your IAM role on AWS CLI using command aws 
 
 GitHub Secret Keys: configure GitHub Secrets for AWS IAM access key, secret access key and region
 
-S3 Bucket: replace S3 bucket name with your bucket in vars.tf file under terraform, and make sure you have files in specified bucket. This accepts CSV, JSON and Parquet file formats
+S3 Bucket: replace S3 bucket name with your bucket in vars.tf file under terraform, and make sure you have files in this bucket.
+
+File formats : This project accepts CSV, JSON and Parquet file formats
 
 ### High-Level Workflow
 Input: The tool is triggered by sending a JSON string specifying:
