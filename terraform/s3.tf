@@ -1,5 +1,5 @@
 # create S3 bucket for terraform state files
-resource "aws_s3_bucket" "s3_ingestion_zone" {
+resource "aws_s3_bucket" "terraform_statefile" {
     bucket_prefix = "${var.terraform-statefile}-"
 
     tags = {
