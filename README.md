@@ -22,6 +22,7 @@ This project provides a library module that can be seamlessly integrated into Py
   - AWS Region
 
 ### S3 Bucket
+- create a S3 bucket with name: "de-gdpr-obfuscator-terraform-statefiles" to store terraform state filesgit
 - Update the S3 bucket name in the `vars.tf` file under the Terraform configuration.
 - Ensure that the data files are present in this bucket.
 
@@ -45,7 +46,7 @@ This project provides a library module that can be seamlessly integrated into Py
 3. Produces an exact copy of the original file with the PII fields obfuscated.
 
 ### Output
-- A byte-stream representation of the obfuscated file.
+- A byte-stream representation of the obfuscated file would be found in aws state functions output
 
 ---
 
