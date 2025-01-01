@@ -16,7 +16,7 @@ variable "step_function_name" {
     default = "InvokeLambdaAndRetrieveFile"
 }
 
-variable "terraform-statefile" {
-    type = string
-    default = "de-gdpr-obfuscator-terraform-statefiles"
-}
+# variable "terraform-statefile" {
+#     type = string
+#     default = "de-gdpr-obfuscator-terraform-statefiles"
+# }

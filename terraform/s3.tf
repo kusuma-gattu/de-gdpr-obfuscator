@@ -1,12 +1,12 @@
 # create S3 bucket for terraform state files
-resource "aws_s3_bucket" "terraform_statefile" {
-    bucket_prefix = "${var.terraform-statefile}-"
+# resource "aws_s3_bucket" "terraform_statefile" {
+#     bucket = "${var.terraform-statefile}"
 
-    tags = {
-        Name = "de-gdpr-obfuscator-terraform-statefiles"
-        Environment = "Dev"
-    }
-}
+#     tags = {
+#         Name = "de-gdpr-obfuscator-terraform-statefiles"
+#         Environment = "Dev"
+#     }
+# }
 
 # access existing s3 bucket
 data "aws_s3_bucket" "s3_ingestion_zone" {

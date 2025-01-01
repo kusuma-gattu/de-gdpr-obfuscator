@@ -14,7 +14,7 @@ provider "aws" {
 terraform {
     backend "s3" {
       region = "eu-west-2"
-      bucket= "${aws_s3_bucket.terraform_statefile.bucket}"
+      bucket= "de-gdpr-obfuscator-terraform-statefiles"
       key = "extract-statefile"
     }
 }
