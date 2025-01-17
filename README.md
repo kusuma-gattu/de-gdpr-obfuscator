@@ -88,7 +88,7 @@ The project is deployed in two ways.
      --state-machine-arn "<STEP_FUNCTION_ARN>" \
      --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
    ```
-  
+   update with your S3 object URI, list of pii_fields in the above command. 
 #### Example
   ```bash
   aws stepfunctions start-execution \
@@ -122,10 +122,13 @@ The project is deployed in two ways.
 
 - Ensure you have the following installed on your machine:
   - Python 3.x
-  - `make` command utility
+  - **`make`** command utility.
+    ```bash
+    pip install make
+    ```
 
 #### **Steps**
-- Clone the project
+- Clone the project.
 - Project Build and Testing Instructions.
   
   This project uses a Makefile to automate the setup, testing and code quality checks. Below are the instructions for building and running various checks on the project locally.
@@ -177,6 +180,7 @@ The project is deployed in two ways.
       --state-machine-arn "$(terraform output -raw state_machine_arn)" \
       --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
     ```
+    update with your S3 object URI, list of pii_fields in the above command. 
 
   #### Example
   ```bash
