@@ -7,36 +7,6 @@ This project provides a library module that can be seamlessly integrated into Py
 
 ---
 
-## Prerequisites and Assumptions
-
-### AWS Configuration
-- Configure your IAM role on the AWS CLI using the following command:
-  ```bash
-  aws configure
-  ```
-
-### GitHub Secrets
-- Configure GitHub Secrets to store the following:
-  - AWS IAM Access Key
-  - AWS IAM Secret Access Key
-  - AWS Region
-
-### S3 Bucket
-- This project expects two S3 buckets exist in AWS:
-  1. To store terraform state files:
-     - If you have already have a bucket then replace the `bucket` argument in `main.tf` file under the Terraform configuration.
-     - Otherwise, Create a S3 bucket with a globally unique name in AWS console and replace the `bucket` argument with the recently created bucket name in `main.tf` file under the Terraform configuration.
-  2. S3 bucket which contains data files. 
-     - Update with your S3 bucket name in the `vars.tf` file under the Terraform configuration. Ensures that this bucket has data files
-
-### Supported File Formats
-- The tool supports the following file formats:
-  - CSV
-  - JSON
-  - Parquet
-
----
-
 ## High-Level Workflow
 
 ### Input
@@ -76,14 +46,39 @@ This project provides a library module that can be seamlessly integrated into Py
 
 
 ---
+### Supported File Formats
+- The tool supports the following file formats:
+  - CSV
+  - JSON
+  - Parquet
 
-## Running the Project
+---
+
+### Running the Project
 The project is deployed in two ways.
 
-1. Through CI/CD pipeline
-2. Run code locally
+1. CI/CD Deployment
+2. Local Deployment
 
-### **Option 1: Using CI/CD pipeline**
+### **CI/CD Deployment**
+<details>
+
+#### **Prerequisites**
+- GitHub Secrets
+  - Configure GitHub Secrets to store the following:
+    - AWS IAM Access Key
+    - AWS IAM Secret Access Key
+    - AWS Region
+
+- S3 Bucket
+  - This project expects two S3 buckets exist in AWS:
+    1. To store terraform state files:
+        - If you have already have a bucket then replace the `bucket` argument in `main.tf` file under the Terraform configuration.
+        - Otherwise, Create a S3 bucket with a globally unique name in AWS console and replace the `bucket` argument with the recently created bucket name in `main.tf` file under the Terraform configuration.
+    2. S3 bucket which contains data files. 
+        - Update with your S3 bucket name in the `vars.tf` file under the Terraform configuration. Ensures that this bucket has data files
+
+#### **Steps**
 
 1. The project will be deployed automatimatically by GitHub actions workflow, once the codebase is pushed or pull request made on main branch of Github
 2. Retrieve the ARN of the Step Function from the AWS Management Console, once the repo is deployed on AWS.
@@ -95,85 +90,105 @@ The project is deployed in two ways.
    ```
   
 #### Example
-```bash
-aws stepfunctions start-execution \
-  --state-machine-arn "arn:aws:states:us-east-1:123456789012:stateMachine:InvokeLambdaAndRetrieveFile" \
-  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["name", "email"] }'
-```
-Start the Step Function execution using the following command on AWS CLI of Windows OS machine:
-```bash
-aws stepfunctions start-execution \
---state-machine-arn "<STEP_FUNCTION_ARN>" \
---input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
-```
+  ```bash
+  aws stepfunctions start-execution \
+    --state-machine-arn "arn:aws:states:us-east-1:123456789012:stateMachine:InvokeLambdaAndRetrieveFile" \
+    --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["name", "email"] }'
+  ```
+  Start the Step Function execution using the following command on AWS CLI of Windows OS machine:
+  ```bash
+  aws stepfunctions start-execution \
+  --state-machine-arn "<STEP_FUNCTION_ARN>" \
+  --input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
+  ```
+</details>
 
-### **Option 2: Run the code locally**
+### **Local Deployment**
+<details>
 
+#### **Prerequisites**
+- Configure your IAM role on the AWS CLI using the following command:
+  ```bash
+  aws configure
+  ```
 
-#### Project Build and Testing Instructions
-This project uses a Makefile to automate the setup, testing and code quality checks. Below are the instructions for building and running various checks on the project locally.
+- S3 Bucket
+  - This project expects two S3 buckets exist in AWS:
+    1. To store terraform state files:
+        - If you have already have a bucket then replace the `bucket` argument in `main.tf` file under the Terraform configuration.
+        - Otherwise, Create a S3 bucket with a globally unique name in AWS console and replace the `bucket` argument with the recently created bucket name in `main.tf` file under the Terraform configuration.
+    2. S3 bucket which contains data files. 
+        - Update with your S3 bucket name in the `vars.tf` file under the Terraform configuration. Ensures that this bucket has data files
 
-##### Prerequisites
+- Ensure you have the following installed on your machine:
+  - Python 3.x
+  - `make` command utility
 
-Ensure you have the following installed on your machine:
-- Python 3.x
-- `make` command utility
+#### **Steps**
+- Clone the project
+- Project Build and Testing Instructions.
+  
+  This project uses a Makefile to automate the setup, testing and code quality checks. Below are the instructions for building and running various checks on the project locally.
+  1. Create virtual environment and install the necessary dependencies for the project
+  ```bash
+  make install-dependencies
+  ```
 
-1. Create virtual environment and install the necessary dependencies for the project
-```bash
-make install-dependencies
-```
+  2. To perform security checks on the project, use:
+  ```bash
+  make run-security
+  ```
 
-2. To perform security checks on the project, use:
-```bash
-make run-security
-```
+  3. To run unit tests and test coverage, execute:
+  ```bash
+  make run-tests
+  ```
 
-3. To run unit tests and test coverage, execute:
-```bash
-make run-tests
-```
+  4. To execute all necessary setup, security checks and unit tests all at once, use:
+  ```bash
+  make run-all
+  ```
 
-4. To execute all necessary setup, security checks and unit tests all at once, use:
-```bash
-make run-all
-```
+- Deployment Instructions
 
-5. Navigate to the `terraform` folder of the repository.
+  1. Navigate to the `terraform` folder of the repository.
 
-6. Run the following commands to deploy locally:
-    - initialize the terraform:
-      ```bash
-      terraform init
-      ```
-    - plan the configuration:
-      ```bash
-      terraform plan
-      ```
-    - deploy the resources:
-      ```bash
-      terrafrom apply
-      ```
-      enter `yes` when prompted
+  2. Run the following commands to deploy locally:
+      - initialize the terraform:
+        ```bash
+        terraform init
+        ```
+      - plan the configuration:
+        ```bash
+        terraform plan
+        ```
+      - deploy the resources:
+        ```bash
+        terrafrom apply
+        ```
+        enter `yes` when prompted
 
-7. Start the Step Function execution using the following command on Linux or Mac OS once resources are deployed:
+- Execute the code
+  1. Navigate to the `terraform` folder of the repository.
+  2. Start the Step Function execution using the following command on Linux or Mac OS once resources are deployed:
 
-   ```bash
-   aws stepfunctions start-execution \
-     --state-machine-arn "$(terraform output -raw state_machine_arn)" \
-     --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
-   ```
+    ```bash
+    aws stepfunctions start-execution \
+      --state-machine-arn "$(terraform output -raw state_machine_arn)" \
+      --input '{ "file_to_obfuscate": "<S3_OBJECT_URI>", "pii_fields": ["<PII_FIELD_1>", "<PII_FIELD_2>"] }'
+    ```
 
-#### Example
-```bash
-aws stepfunctions start-execution \
+  #### Example
+  ```bash
+  aws stepfunctions start-execution \
+    --state-machine-arn "$(terraform output -raw state_machine_arn)" \
+    --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["email", "address"] }'
+  ```
+
+  Start the Step Function execution using the following command on Windows OS:
+  ```bash
+  aws stepfunctions start-execution \
   --state-machine-arn "$(terraform output -raw state_machine_arn)" \
-  --input '{ "file_to_obfuscate": "s3://my-bucket/sample.csv", "pii_fields": ["email", "address"] }'
-```
-
-Start the Step Function execution using the following command on Windows OS:
-```bash
-aws stepfunctions start-execution \
---state-machine-arn "$(terraform output -raw state_machine_arn)" \
---input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
-```
+  --input "{\"file_to_obfuscate\": \"<S3_OBJECT_URI>\", \"pii_fields\": [\"<PII_FIELD_1>\", \"<PII_FIELD_2>\"]}"
+  ```
+</details>
