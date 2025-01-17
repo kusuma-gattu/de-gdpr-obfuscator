@@ -32,5 +32,11 @@ unit-test:
 check-coverage:
 	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest --cov=src test/
 
+# run quality/security checks
+run-security: install-dev-tools security-checks
+
+# run tests and test coverage
+run-tests: unit-test check-coverage
+
 # run all dependencies
 run-all: install-dependencies install-dev-tools security-checks unit-test check-coverage
