@@ -7,7 +7,7 @@ variable "lambda_name" {
 
 variable "s3_bucket_name" {
     type = string
-    # REPLACE HERE with YOUR S3 BUCKET NAME
+    # REPLACE HERE with YOUR S3 BUCKET NAME, which have data files
     default = "gdpr-ingestion-zone"
 }
 
@@ -16,7 +16,4 @@ variable "step_function_name" {
     default = "InvokeLambdaAndRetrieveFile"
 }
 
-# variable "terraform-statefile" {
-#     type = string
-#     default = "de-gdpr-obfuscator-terraform-statefiles"
-# }
+
