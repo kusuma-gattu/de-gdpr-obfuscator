@@ -7,6 +7,22 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 def read_data(format, data, pii_fields):
+    """
+    Reads data from a byte stream, anonymizes specified PII fields, 
+    and writes the obfuscated data to a temporary file.
+
+    Args:
+        format (str): The format of the input data ('csv', 'json', or 'parquet').
+        data (bytes): The byte stream of the data to process.
+        pii_fields (list): A list of field names containing PII that need to be anonymized.
+
+    Returns:
+        str: The path to the temporary file containing the obfuscated data.
+
+    Raises:
+        ValueError: If an unsupported file format is provided.
+        Exception: For any errors encountered during processing.
+    """
     try:
         # Read content into a DataFrame
         if format == 'csv':
@@ -43,12 +59,30 @@ def read_data(format, data, pii_fields):
 
 
 def lambda_handler(event, context):
+    """
+    AWS Lambda function handler to read a file from S3, 
+    anonymize specified PII fields, and return the obfuscated file's path.
+
+    Args:
+        event (dict): Event data passed by the Lambda trigger, expected to contain:
+            - 'file_to_obfuscate' (str): S3 URL of the file to process.
+            - 'pii_fields' (list): List of PII field names to be anonymized.
+        context (object): Lambda context runtime information (not used).
+
+    Returns:
+        dict: A dictionary with 'status_code' and 'file' keys, where:
+            - 'status_code' is the HTTP status code.
+            - 'file' is the path to the obfuscated file.
+
+    Raises:
+        Exception: For any errors encountered during execution.
+    """
     try:
         # get s3 url from input
         s3_url = event['file_to_obfuscate']
         # extract bucket name and object key from s3 url
         url = urlparse(s3_url)
-        print(url)
+        logger.info(url)
         if url.scheme == 's3':
             # check if S3 url has bucket name
             if url.netloc:
