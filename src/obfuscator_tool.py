@@ -1,4 +1,4 @@
-import re, io, tempfile, logging
+import re, io, tempfile, logging, json
 import boto3
 import pandas as pd
 from urllib.parse import urlparse
@@ -17,7 +17,7 @@ def read_data(format, data, pii_fields):
         pii_fields (list): A list of field names containing PII that need to be anonymized.
 
     Returns:
-        str: The path to the temporary file containing the obfuscated data.
+        dict: The path to the temporary file containing the obfuscated data and buffer object 
 
     Raises:
         ValueError: If an unsupported file format is provided.
@@ -40,18 +40,24 @@ def read_data(format, data, pii_fields):
                 df[field] = "****"
             else:
                 logger.warning(f"PII field '{field}' not found in the data")
-        
+        buffer = io.StringIO()
         # Write the anonymized data to a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{format}") as temp_file:
             if format == 'csv':
                 df.to_csv(temp_file.name, index=False)
+                df.to_csv(buffer)
             elif format == 'json':
                 df.to_json(temp_file.name, orient="records")
+                df.to_json(buffer)
             elif format == 'parquet':
                 df.to_parquet(temp_file.name, index=False)
-            
+                df.to_parquet(buffer)
+                            
             logger.info(f"Data successfully written to {temp_file.name}")
-            return temp_file.name
+            return {
+                'file': temp_file.name,
+                'buffer': buffer
+            }
 
     except Exception as e:
         logger.error(f"Error processing data: {str(e)}")
@@ -109,22 +115,21 @@ def lambda_handler(event, context):
             data = response['Body'].read()
             # check file type
             file_format = re.search(r"([.])([a-z]+)", s3_url)
-            file_format = file_format.group(2)       
-            output_file = read_data(file_format, data, event['pii_fields']) 
-            if output_file:
-                # optional: place obfuscated file back in the ingested bucket for verification
-                # if you don't want to do this happen, could you please comment out this code till, just before the return statement
-                response = s3_client.put_object(
-                    Body = output_file.getvalue(),
-                    Bucket = bucket_name,
-                    Key = f"transformed/{output_file.name}" 
-                )
-                if response['ResponseMetadata']['Statuscode'] == 200:
-                    logger.info("object ingested successfully")
-                
+            file_format = file_format.group(2) 
+            file_name = re.search(r"[a-z0-9_-]+[.][a-z]+", s3_url)      
+            output = read_data(file_format, data, event['pii_fields'])
+             # Optional: ingest data into S3 bucket
+            res = s3_client.put_object(
+                Body = output['buffer'].getvalue(),
+                Bucket = bucket_name,
+                Key = f"transformed/{file_name.group()}"
+            )
+            if res["ResponseMetadata"]["HTTPStatusCode"] == 200:
+                logger.info(f"file ingested successfully into S3")
+            if output:
                 return {
                 "status_code" : 200,
-                "file": output_file
+                "file": output['file']
             }
          
     except Exception as e:
