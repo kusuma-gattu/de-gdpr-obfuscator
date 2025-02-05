@@ -167,7 +167,7 @@ The project is deployed in two ways.
         ```
       - deploy the resources:
         ```bash
-        terrafrom apply
+        terraform apply
         ```
         enter `yes` when prompted
 
