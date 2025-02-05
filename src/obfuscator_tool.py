@@ -112,6 +112,16 @@ def lambda_handler(event, context):
             file_format = file_format.group(2)       
             output_file = read_data(file_format, data, event['pii_fields']) 
             if output_file:
+                # optional: place obfuscated file back in the ingested bucket for verification
+                # if you don't want to do this happen, could you please comment out this code till, just before the return statement
+                response = s3_client.put_object(
+                    Body = output_file.getvalue(),
+                    Bucket = bucket_name,
+                    Key = f"transformed/{output_file.name}" 
+                )
+                if response['ResponseMetadata']['Statuscode'] == 200:
+                    logger.info("object ingested successfully")
+                
                 return {
                 "status_code" : 200,
                 "file": output_file
